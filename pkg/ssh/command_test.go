@@ -90,3 +90,17 @@ func TestSSHGetPrompt(t *testing.T) {
 	require.NoError(t, err)
 	require.Contains(t, out, "student@")
 }
+
+func TestSSHWaitFor(t *testing.T) {
+	h, err := New(TestSSHServer)
+	require.NoError(t, err)
+	err = h.StartChat()
+	require.NoError(t, err)
+	_, err = h.GetPrompt()
+	require.NoError(t, err)
+
+	word := "12345678"
+	err = h.Send("echo -n " + word)
+	require.NoError(t, err)
+	_, err = h.WaitFor(word, 10)
+}

@@ -43,7 +43,7 @@ func (h *Host) Command(c string, sudo bool) (string, error) {
 		return "", errors.New("cmd should not be empty")
 	}
 	cmdLine := strings.Fields(c)
-	args := []string{"-t", h.Address}
+	args := []string{"-tt", h.Address}
 	if sudo {
 		args = append(args, "sudo")
 	}
