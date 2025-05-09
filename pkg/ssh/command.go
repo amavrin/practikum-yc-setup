@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os/exec"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ type Host struct {
 	Scanner *bufio.Scanner
 	Reader  *bufio.Reader
 	Cmd     *exec.Cmd
+	Debug   bool
 }
 
 func New(address string) (Host, error) {
@@ -36,6 +38,10 @@ func New(address string) (Host, error) {
 
 func (h *Host) SetPrompt(p byte) {
 	h.Prompt = p
+}
+
+func (h *Host) SetDebug(d bool) {
+	h.Debug = d
 }
 
 func (h *Host) Command(c string, sudo bool) (string, error) {
@@ -100,6 +106,9 @@ func (h *Host) WaitFor(wait string, maxLines int) (string, error) {
 	ret := ""
 	for h.Scanner.Scan() {
 		line := h.Scanner.Text()
+		if h.Debug {
+			log.Print("get: ", line)
+		}
 		ret += line + "\n"
 		maxLines--
 		if maxLines < 0 {

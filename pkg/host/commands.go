@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/amavrin/practikum-yc-setup/pkg/browser"
 	"github.com/amavrin/practikum-yc-setup/pkg/ssh"
 )
 
@@ -60,6 +61,7 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 	if err != nil {
 		return err
 	}
+
 	log.Printf("sending '%s' command...", command)
 	err = sshHost.Send(command)
 	if err != nil {
@@ -81,46 +83,93 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("got URL: ", urlString)
+	port, url, err := getRedirectPort(urlString)
+	if err != nil {
+		return err
+	}
+
+	log.Print("setting up SSH tunnel...")
+	_, err = sshHost.Tunnel(port, port)
+	if err != nil {
+		return err
+	}
+
+	log.Print("opening browser...")
+	err = browser.Open(url)
+	if err != nil {
+		return err
+	}
+
+	log.Print("configuring profile settings...")
+	_, err = sshHost.WaitFor("Please choose folder to use", 20)
+	if err != nil {
+		return err
+	}
+
+	log.Print("using 1-st available folder...")
+	err = sshHost.Send("1")
+	if err != nil {
+		return err
+	}
+
+	_, err = sshHost.WaitFor("Your current folder has been set", 20)
+	if err != nil {
+		return err
+	}
+	log.Print("not choosing default zone...")
+	err = sshHost.Send("n")
+	if err != nil {
+		return err
+	}
+
+	log.Print("waiting for prompt...")
+	_, err = sshHost.GetPrompt()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func getRedirectPort(input string) (int, error) {
+func CheckYC(sshHost *ssh.Host) (string, error) {
+	return sshHost.Command("/home/student/yandex-cloud/bin/yc resource-manager cloud list", false)
+}
+
+func getRedirectPort(input string) (int, string, error) {
 	urlStart := strings.Index(input, "https://auth.yandex.cloud/oauth")
 	if urlStart == -1 {
-		return 0, errors.New("url not found in the input")
+		return 0, "", errors.New("url not found in the input")
 	}
 	urlStr := strings.Fields(input[urlStart:])[0]
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 	queryParams := parsedURL.Query()
 	redirectURIEncoded := queryParams.Get("redirect_uri")
 	if redirectURIEncoded == "" {
-		return 0, errors.New("redirect_uri not found in URL")
+		return 0, "", errors.New("redirect_uri not found in URL")
 	}
 
 	redirectURI, err := url.QueryUnescape(redirectURIEncoded)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 	parsedRedirectURI, err := url.Parse(redirectURI)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	redirectHost := parsedRedirectURI.Host
 	if redirectHost == "" {
-		return 0, errors.New("redirect host not found in redirect uri")
+		return 0, "", errors.New("redirect host not found in redirect uri")
 	}
 	parts := strings.Split(redirectHost, ":")
 	if len(parts) != 2 {
-		return 0, errors.New("port not found in redirect host string")
+		return 0, "", errors.New("port not found in redirect host string")
 	}
 	port, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
-	return port, nil
+	return port, urlStr, nil
 }
