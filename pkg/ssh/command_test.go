@@ -3,7 +3,6 @@ package ssh
 import (
 	"bufio"
 	"flag"
-	"fmt"
 	"net"
 	"os"
 	"os/exec"
@@ -78,7 +77,16 @@ func TestSSHChat(t *testing.T) {
 	require.NoError(t, err)
 	err = h.Send("id -u")
 	require.NoError(t, err)
-	out, err := h.WaitFor("1001", 20)
+	_, err = h.WaitFor("1001", 20)
 	require.NoError(t, err)
-	fmt.Println(out)
+}
+
+func TestSSHGetPrompt(t *testing.T) {
+	h, err := New(TestSSHServer)
+	require.NoError(t, err)
+	err = h.StartChat()
+	require.NoError(t, err)
+	out, err := h.GetPrompt()
+	require.NoError(t, err)
+	require.Contains(t, out, "student@")
 }
