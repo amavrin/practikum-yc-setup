@@ -13,3 +13,10 @@ func Log(str ...any) {
 	}
 
 }
+
+func NewLine() string {
+	if runtime.GOOS == "windows" {
+		return "\r\n"
+	}
+	return "\n"
+}
