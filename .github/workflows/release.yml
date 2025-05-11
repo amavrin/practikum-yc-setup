@@ -31,8 +31,7 @@ jobs:
           then
             OUTPUT_NAME="${OUTPUT_NAME}.exe"
           fi
-          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}
-               go build -o ${OUTPUT_NAME} cmd/main.go
+          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${OUTPUT_NAME} cmd/main.go
 
       - name: Release
         uses: softprops/action-gh-release@v1
