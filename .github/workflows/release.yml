@@ -25,4 +25,3 @@ jobs:
         with:
           files: |
             bin/praktikum-profile-setup
-            # more file here...
