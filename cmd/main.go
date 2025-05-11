@@ -38,8 +38,8 @@ func run(server string, federationID string) error {
 		return fmt.Errorf("configure YC profile: %w", err)
 	}
 
-	out, err := host.CheckYC(&sshHost)
 	cons.Log("check YC working...")
+	out, err := host.CheckYC(&sshHost)
 	if err != nil {
 		return fmt.Errorf("host.CheckYC: %w", err)
 	}
