@@ -27,7 +27,8 @@ jobs:
       - name: Build project
         run: |
           OUTPUT_NAME="vm-profile-setup-${{ matrix.goos }}-${{ matrix.goarch }}"
-          if [ "$GOOS" = "windows" ]; then
+          if [[ "${{ matrix.goos }}" == "windows" ]]
+          then
             OUTPUT_NAME="${OUTPUT_NAME}.exe"
           fi
           CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}
