@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"os/exec"
 	"strings"
 	"time"
@@ -72,7 +73,10 @@ func (h *Host) Tunnel(local, remote int) (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	time.Sleep(3 * time.Second)
+	err = checkTCPConn(local)
+	if err != nil {
+		return nil, err
+	}
 	return func() { cmd.Process.Kill() }, nil
 }
 
@@ -130,4 +134,20 @@ func (h *Host) Send(what string) error {
 
 func (h *Host) GetPrompt() (string, error) {
 	return h.Reader.ReadString(h.Prompt)
+}
+
+func checkTCPConn(port int) error {
+	timeout := 1 * time.Second
+	count := 10
+	addr := fmt.Sprintf("localhost:%d", port)
+	for range count {
+		conn, err := net.DialTimeout("tcp", addr, timeout)
+		if err != nil {
+			time.Sleep(timeout)
+			continue
+		}
+		conn.Close()
+		return nil
+	}
+	return fmt.Errorf("connection to %s not established after %d of %v", addr, count, timeout)
 }
