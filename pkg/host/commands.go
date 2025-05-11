@@ -45,7 +45,7 @@ func InstallYC(sshHost *ssh.Host) error {
 	command := "curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash"
 	out, err := sshHost.Command(command, true)
 	if err != nil {
-		log.Printf("error installing yc: %s", out)
+		log.Printf("error installing yc: %s\n", out)
 		return err
 	}
 	return nil
@@ -62,23 +62,23 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 		return err
 	}
 
-	log.Printf("sending '%s' command...", command)
+	log.Println("sending ", command, " command...")
 	err = sshHost.Send(command)
 	if err != nil {
 		return err
 	}
 	lines := 10
-	log.Printf(`Waiting for response...`)
+	log.Println(`Waiting for response...`)
 	_, err = sshHost.WaitFor("After your successful authentication", lines)
 	if err != nil {
 		return err
 	}
-	log.Print("sending Enter...")
+	log.Println("sending Enter...")
 	err = sshHost.Send("")
 	if err != nil {
 		return err
 	}
-	log.Print("waiting for URL...")
+	log.Println("waiting for URL...")
 	urlString, err := sshHost.WaitFor("https://auth.yandex.cloud", lines)
 	if err != nil {
 		return err
@@ -88,25 +88,25 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 		return err
 	}
 
-	log.Print("setting up SSH tunnel...")
+	log.Println("setting up SSH tunnel...")
 	_, err = sshHost.Tunnel(port, port)
 	if err != nil {
 		return err
 	}
 
-	log.Print("opening browser...")
+	log.Println("opening browser...")
 	err = browser.Open(url)
 	if err != nil {
 		return err
 	}
 
-	log.Print("configuring profile settings...")
+	log.Println("configuring profile settings...")
 	_, err = sshHost.WaitFor("Please choose folder to use", 20)
 	if err != nil {
 		return err
 	}
 
-	log.Print("using 1-st available folder...")
+	log.Println("using 1-st available folder...")
 	err = sshHost.Send("1")
 	if err != nil {
 		return err
@@ -116,13 +116,13 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 	if err != nil {
 		return err
 	}
-	log.Print("not choosing default zone...")
+	log.Println("not choosing default zone...")
 	err = sshHost.Send("n")
 	if err != nil {
 		return err
 	}
 
-	log.Print("waiting for prompt...")
+	log.Println("waiting for prompt...")
 	_, err = sshHost.GetPrompt()
 	if err != nil {
 		return err
