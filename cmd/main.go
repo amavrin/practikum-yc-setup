@@ -33,6 +33,9 @@ func run(server string, federationID string) error {
 	}
 	log.Println("configuring YC profile...")
 	err = host.ConfigureYCProfile(&sshHost, federationID)
+	if err != nil {
+		return fmt.Errorf("configure YC profile: %w", err)
+	}
 
 	out, err := host.CheckYC(&sshHost)
 	log.Println("check YC working...")
