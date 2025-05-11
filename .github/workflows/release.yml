@@ -11,6 +11,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,10 +25,17 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Build project
-        run: make # or 'go build .' etc...
+        run: CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}
+               go build cmd/main.go
+               -o vm-profile-setup-${{ matrix.goos }}-${{ matrix.goarch }}
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            bin/praktikum-profile-setup
+            vm-profile-setup-linux-amd64
+            vm-profile-setup-linux-arm64
+            vm-profile-setup-windows-amd64
+            vm-profile-setup-windows-arm64
+            vm-profile-setup-darwin-amd64
+            vm-profile-setup-darwin-arm64
