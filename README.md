@@ -17,3 +17,10 @@ Command connects to VM, **removes** existing yc profile and set up new one for f
        -server student@${VM_ID}.praktikum-services.tech \
        -federation-id=${FED_ID}
    ```
+   If you prefer to use prebuild binaries, download one for your architecture
+   from Releases page, and use it:
+   ```
+   ./vm-profile-setup-linux-amd64 \
+       -server student@${VM_ID}.praktikum-services.tech \
+       -federation-id=${FED_ID}
+   ```
