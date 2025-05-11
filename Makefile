@@ -4,4 +4,4 @@ clean:
 	rm bin/praktikum-profile-setup
 
 build: 
-	go build -o bin/praktikum-profile-setup cmd/main.go
+	CGO_ENABLED=0 go build -o bin/praktikum-profile-setup cmd/main.go
