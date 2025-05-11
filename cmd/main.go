@@ -44,7 +44,7 @@ func run(server string, federationID string) error {
 		return fmt.Errorf("host.CheckYC: %w", err)
 	}
 
-	cons.Log(cons.NewLine(), out)
+	cons.Log(cons.NewLine() + out)
 	cons.Log("successfully configured YC profile")
 	return nil
 }
