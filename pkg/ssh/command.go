@@ -5,10 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/amavrin/practikum-yc-setup/pkg/cons"
 )
 
 type Host struct {
@@ -107,7 +108,7 @@ func (h *Host) WaitFor(wait string, maxLines int) (string, error) {
 	for h.Scanner.Scan() {
 		line := h.Scanner.Text()
 		if h.Debug {
-			log.Print("get: ", line)
+			cons.Log("get: ", line)
 		}
 		ret += line + "\n"
 		maxLines--

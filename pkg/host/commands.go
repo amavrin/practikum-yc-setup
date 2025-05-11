@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/amavrin/practikum-yc-setup/pkg/browser"
+	"github.com/amavrin/practikum-yc-setup/pkg/cons"
 	"github.com/amavrin/practikum-yc-setup/pkg/ssh"
 )
 
@@ -62,23 +63,23 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 		return err
 	}
 
-	log.Println("sending ", command, " command...")
+	cons.Log("sending ", command, " command...")
 	err = sshHost.Send(command)
 	if err != nil {
 		return err
 	}
 	lines := 10
-	log.Println(`Waiting for response...`)
+	cons.Log(`Waiting for response...`)
 	_, err = sshHost.WaitFor("After your successful authentication", lines)
 	if err != nil {
 		return err
 	}
-	log.Println("sending Enter...")
+	cons.Log("sending Enter...")
 	err = sshHost.Send("")
 	if err != nil {
 		return err
 	}
-	log.Println("waiting for URL...")
+	cons.Log("waiting for URL...")
 	urlString, err := sshHost.WaitFor("https://auth.yandex.cloud", lines)
 	if err != nil {
 		return err
@@ -88,25 +89,25 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 		return err
 	}
 
-	log.Println("setting up SSH tunnel...")
+	cons.Log("setting up SSH tunnel...")
 	_, err = sshHost.Tunnel(port, port)
 	if err != nil {
 		return err
 	}
 
-	log.Println("opening browser...")
+	cons.Log("opening browser...")
 	err = browser.Open(url)
 	if err != nil {
 		return err
 	}
 
-	log.Println("configuring profile settings...")
+	cons.Log("configuring profile settings...")
 	_, err = sshHost.WaitFor("Please choose folder to use", 20)
 	if err != nil {
 		return err
 	}
 
-	log.Println("using 1-st available folder...")
+	cons.Log("using 1-st available folder...")
 	err = sshHost.Send("1")
 	if err != nil {
 		return err
@@ -116,13 +117,13 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 	if err != nil {
 		return err
 	}
-	log.Println("not choosing default zone...")
+	cons.Log("not choosing default zone...")
 	err = sshHost.Send("n")
 	if err != nil {
 		return err
 	}
 
-	log.Println("waiting for prompt...")
+	cons.Log("waiting for prompt...")
 	_, err = sshHost.GetPrompt()
 	if err != nil {
 		return err

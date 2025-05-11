@@ -5,46 +5,47 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/amavrin/practikum-yc-setup/pkg/cons"
 	"github.com/amavrin/practikum-yc-setup/pkg/host"
 	"github.com/amavrin/practikum-yc-setup/pkg/ssh"
 )
 
 func run(server string, federationID string) error {
-	log.Printf("running for %s", server)
+	cons.Log("running for ", server)
 	sshHost, err := ssh.New(server)
 	if err != nil {
 		return err
 	}
 
-	log.Println("setting up xdg-open...")
+	cons.Log("setting up xdg-open...")
 	err = host.SetupXdgOpen(&sshHost)
 	if err != nil {
 		return fmt.Errorf("host.SetupXdgOpen: %w", err)
 	}
-	log.Println("removing yc profile...")
+	cons.Log("removing yc profile...")
 	err = host.RemoveYCProfile(&sshHost)
 	if err != nil {
 		return fmt.Errorf("host.RemoveYCProfile: %w", err)
 	}
-	log.Println("installing yc...")
+	cons.Log("installing yc...")
 	err = host.InstallYC(&sshHost)
 	if err != nil {
 		return fmt.Errorf("host.InstallYC: %w", err)
 	}
-	log.Println("configuring YC profile...")
+	cons.Log("configuring YC profile...")
 	err = host.ConfigureYCProfile(&sshHost, federationID)
 	if err != nil {
 		return fmt.Errorf("configure YC profile: %w", err)
 	}
 
 	out, err := host.CheckYC(&sshHost)
-	log.Println("check YC working...")
+	cons.Log("check YC working...")
 	if err != nil {
 		return fmt.Errorf("host.CheckYC: %w", err)
 	}
 
-	fmt.Println(out)
-	log.Println("successfully configured YC profile")
+	cons.Log("\r\n", out)
+	cons.Log("successfully configured YC profile")
 	return nil
 }
 
