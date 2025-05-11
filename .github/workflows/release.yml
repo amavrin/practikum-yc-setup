@@ -24,19 +24,14 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: Build project [unix]
-        if: matrix.os != 'windows'
-        run: CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}
-               go build
-               -o vm-profile-setup-${{ matrix.goos }}-${{ matrix.goarch }}
-               cmd/main.go
-
-      - name: Build project [windows]
-        if: matrix.os == 'windows'
-        run: CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}
-               go build
-               -o vm-profile-setup-${{ matrix.goos }}-${{ matrix.goarch }}.exe
-               cmd/main.go
+      - name: Build project
+        run: |
+          OUTPUT_NAME="vm-profile-setup-${{ matrix.goos }}-${{ matrix.goarch }}"
+          if [ "$GOOS" = "windows" ]; then
+            OUTPUT_NAME="${OUTPUT_NAME}.exe"
+          fi
+          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}
+               go build -o ${OUTPUT_NAME} cmd/main.go
 
       - name: Release
         uses: softprops/action-gh-release@v1
