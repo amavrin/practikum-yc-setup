@@ -132,7 +132,7 @@ func ConfigureYCProfile(sshHost *ssh.Host, fedID string) error {
 }
 
 func CheckYC(sshHost *ssh.Host) (string, error) {
-	return sshHost.Command("/home/student/yandex-cloud/bin/yc resource-manager cloud list", false)
+	return sshHost.Command("yc resource-manager cloud list", false)
 }
 
 func getRedirectPort(input string) (int, string, error) {
